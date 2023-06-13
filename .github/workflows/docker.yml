@@ -2,13 +2,8 @@ name: IPTV-Docker
 
 on:
   push:
-    branches: [ "main" ]
-    paths:
-      - '**.go'
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - '**.go'
+    branches:
+      - main
 
 env:
   APP_NAME: allinone
