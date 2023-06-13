@@ -15,6 +15,23 @@ chmod 777 allinone && ./allinone
 ```
 建议搭配进程守护工具进行使用，windows直接双击运行！
 ## 三、详细使用方法
+## **虎牙、斗鱼、YY实时M3U获取：**
+### 虎牙一起看：
+```
+http://你的IP:35455/huyayqk.m3u
+```
+### 斗鱼一起看：
+```
+http://你的IP:35455/douyuyqk.m3u
+```
+### YY轮播：
+```
+http://你的IP:35455/yylunbo.m3u
+```
+### 如果使需要自定义M3U文件中的前缀域名，可以传入url参数（需要注意的是，当域名中含有特殊字符时，需要对链接进行urlencode处理）：
+```
+http://你的IP:35455/xxxyqk.m3u?url=http://192.168.10.1:35455
+```
 ## **抖音：**
 ### 1，抖音手机客户端进入直播间后，点击右下角三个点，点击分享，点击复制链接，然后运行并访问：
 ```
@@ -26,13 +43,13 @@ http://你的IP:35455/douyin?url=https://v.douyin.com/xxxxxx(&quality=xxxx)
 http://你的IP:35455/douyin/xxxxx
 ```
 ## **斗鱼：**
-### 1，可选m3u8和flv两种流媒体传输方式【`(www.douyu.com/)xxxxxx 或 (www.douyu.com/xx/xx?rid=)xxxxxx`，默认m3u8兼容性好】：
+### 1，可选m3u8和flv以及xs三种流媒体传输方式【`(www.douyu.com/)xxxxxx 或 (www.douyu.com/xx/xx?rid=)xxxxxx`，默认m3u8兼容性好】：
 ```
 http://你的IP:35455/douyu/xxxxx
 ```
-### 2，选择flv时可选择不同cdn（需要加`stream`和`cdn`参数，不加参数默认`hls`和`akm-tct.douyucdn.cn`）
+### 2，选择flv/xs时可选择不同cdn（需要加`stream`和`cdn`参数，不加参数默认`hls`和`openhls-tct.douyucdn2.cn`）
 ```
-http://你的IP:35455/douyu/xxxxx(?stream=flv&cdn=hw-tct)
+http://你的IP:35455/douyu/xxxxx(?stream=flv( or xs)&cdn=xxxxx)
 ```
 ## **BiliBili`(live.bilibili.com/)xxxxxx`：**
 ### 1，平台platform参数选择（默认web，如果有问题，可以切换h5平台）：
@@ -60,14 +77,32 @@ http://你的IP:35455/douyu/xxxxx(?stream=flv&cdn=hw-tct)
 ```
 http://你的IP:35455/bilibili/xxxxxx(?platform=h5&line=first&quality=10000)
 ```
-## **虎牙`(huya.com/)xxxxxx`：**
+## **虎牙`(huya.com/)xxxxxx`：**  
+### 1，查看可用CDN：
 ```
-http://你的IP:35455/huya/xxxxx
+http://你的IP:35455/huya/xxxxx?type=display
+```
+### 2，切换媒体类型（默认flv，可选flv、hls）： 
+```
+http://你的IP:35455/huya/xxxxx?media=hls
+```
+### 3，切换CDN（默认hwcdn，可选hycdn、alicdn、txcdn、hwcdn、hscdn、wscdn，具体可先访问1获取）：
+```
+http://你的IP:35455/huya/xxxxx?cdn=alicdn
+```
+### 4，最后的代理链接示例：
+```
+http://你的IP:35455/huya/xxxxx(?media=xxx&cdn=xxx)
 ```
 ## **YouTube:**
 ```
 https://www.youtube.com/watch?v=cK4LemjoFd0
 Rid: cK4LemjoFd0
 http://你的IP:35455/youtube/cK4LemjoFd0(?quality=1080/720...)
+```
+## **YY（默认最高画质，参数为4）:**
+```
+https://www.yy.com/xxxx
+http://你的IP:35455/yy/xxxx(?quality=1/2/3/4...)
 ```
 ## 更多平台后续会酌情添加

@@ -15,6 +15,7 @@ import (
 	"io"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -32,13 +33,30 @@ func md5V3(str string) string {
 	return md5str
 }
 
+func getDid() string {
+	client := &http.Client{}
+	timeStamp := strconv.FormatInt(time.Now().UnixNano()/1000000, 10)
+	url := "https://passport.douyu.com/lapi/did/api/get?client_id=25&_=" + timeStamp + "&callback=axiosJsonpCallback1"
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Add("user-agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.3 Mobile/15E148 Safari/604.1")
+	req.Header.Set("referer", "https://m.douyu.com/")
+	resp, _ := client.Do(req)
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	re := regexp.MustCompile(`axiosJsonpCallback1\((.*)\)`)
+	match := re.FindStringSubmatch(string(body))
+	var result map[string]map[string]string
+	json.Unmarshal([]byte(match[1]), &result)
+	return result["data"]["did"]
+}
+
 func (d *Douyu) GetRealUrl() any {
-	const did = "10000000000000000000000000001501"
+	did := getDid()
 	var timestamp = time.Now().Unix()
 	liveurl := "https://m.douyu.com/" + d.Rid
 	client := &http.Client{}
 	r, _ := http.NewRequest("GET", liveurl, nil)
-	r.Header.Add("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36")
+	r.Header.Add("user-agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.3 Mobile/15E148 Safari/604.1")
 	r.Header.Add("upgrade-insecure-requests", "1")
 	resp, _ := client.Do(r)
 	defer resp.Body.Close()
@@ -97,7 +115,7 @@ func (d *Douyu) GetRealUrl() any {
 		panic(n3err)
 	}
 	param := fmt.Sprintf("%s", result2)
-	realparam := param + "&ver=219032101&rid=" + realroomid + "&rate=0"
+	realparam := param + "&ver=22107261&rid=" + realroomid + "&rate=-1"
 	r1, n4err := http.Post("https://m.douyu.com/api/room/ratestream", "application/x-www-form-urlencoded", strings.NewReader(realparam))
 	if n4err != nil {
 		panic(n4err)
@@ -126,12 +144,15 @@ func (d *Douyu) GetRealUrl() any {
 	n4reg := regexp.MustCompile(`(?i)(\d{1,8}[0-9a-zA-Z]+)_?\d{0,4}(.m3u8|/playlist)`)
 	houzhui := n4reg.FindStringSubmatch(hls_url)
 	var real_url string
-	flv_url := "http://" + d.Cdn_type + ".douyucdn.cn/live/" + houzhui[1] + ".flv?uuid="
+	flv_url := "http://" + d.Cdn_type + ".douyucdn2.cn/dyliveflv1/" + houzhui[1] + ".flv?uuid="
+	xs_url := "http://" + d.Cdn_type + ".douyucdn2.cn/dyliveflv1/" + houzhui[1] + ".xs?uuid="
 	switch d.Stream_type {
 	case "hls":
 		real_url = hls_url
 	case "flv":
 		real_url = flv_url
+	case "xs":
+	    real_url = xs_url
 	}
 	return real_url
 }

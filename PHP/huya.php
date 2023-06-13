@@ -101,7 +101,7 @@ $reg = "/\<script\> window.HNF_GLOBAL_INIT = (.*) \<\/script\>/i";
 preg_match($reg, $res, $realres);
 $realdata = json_decode($realres[1], true);
 
-if (in_array(0, $realdata) or in_array(1, $realdata)) {
+if (array_key_exists("exceptionType", $realdata)) {
     header('location:' . $mediaurl);
     exit();
 } elseif ($realdata["roomInfo"]["eLiveStatus"] == 2) {
@@ -131,7 +131,7 @@ if (in_array(0, $realdata) or in_array(1, $realdata)) {
         }
     }
     header('location:' . $mediaurl);
-    exit;
+    exit();
 } elseif ($realdata["roomInfo"]["eLiveStatus"] == 3) {
     header('location:' . "http:" . base64_decode($realdata["roomProfile"]["liveLineUrl"]));
     exit();
