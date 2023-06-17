@@ -4,79 +4,52 @@ on:
   push:
     branches: ["main"]
     paths:
-      - '**.go'    
+      - '**.go'
   pull_request:
     branches: ["main"]
     paths:
       - '**.go'
 
 jobs:
-  linux_amd64_build:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Cross Compile
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - name: Build and Upload Artifacts
         run: |
           cd ./Golang
-          GOOS=linux GOARCH=amd64 go build -o allinone_linux_amd64
-      - name: Upload Cross Compile Artifacts
-        uses: actions/upload-artifact@v3
+          export CURRENT_DATE=$(date +"%Y-%m-%d %H:%M:%S")
+          export RELEASE_TAG="release_${CURRENT_DATE}"
+          mkdir -p releases/${RELEASE_TAG}
+          GOOS=linux GOARCH=amd64 go build -o releases/${RELEASE_TAG}/allinone_linux_amd64
+          GOOS=linux GOARCH=arm64 go build -o releases/${RELEASE_TAG}/allinone_linux_arm64
+          GOOS=darwin GOARCH=amd64 go build -o releases/${RELEASE_TAG}/allinone_darwin_amd64
+          GOOS=darwin GOARCH=arm64 go build -o releases/${RELEASE_TAG}/allinone_darwin_arm64
+          GOOS=windows GOARCH=amd64 go build -o releases/${RELEASE_TAG}/allinone_windows_amd64.exe
+          echo "::set-output name=release_tag::${RELEASE_TAG}"
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_PAT }}
         with:
-          name: allinone_linux_amd64
-          path: Golang/allinone_linux_amd64
-
-  linux_arm64_build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Cross Compile
-        run: |
-          cd ./Golang
-          GOOS=linux GOARCH=arm64 go build -o allinone_linux_arm64
-      - name: Upload Cross Compile Artifacts
-        uses: actions/upload-artifact@v3
+          tag_name: ${{ steps.build.outputs.release_tag }}
+          release_name: Release ${{ steps.build.outputs.release_tag }}
+          body: |
+            Automatic release created on ${{ steps.build.outputs.release_tag }}.
+          draft: false
+          prerelease: false
+      - name: Upload Release Assets
+        id: upload_assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_PAT }}
         with:
-          name: allinone_linux_arm64
-          path: Golang/allinone_linux_arm64
-
-  darwin_amd64_build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Cross Compile
-        run: |
-          cd ./Golang
-          GOOS=darwin GOARCH=amd64 go build -o allinone_darwin_amd64
-      - name: Upload Cross Compile Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: allinone_darwin_amd64
-          path: Golang/allinone_darwin_amd64
-
-  darwin_arm64_build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Cross Compile
-        run: |
-          cd ./Golang
-          GOOS=darwin GOARCH=arm64 go build -o allinone_darwin_arm64
-      - name: Upload Cross Compile Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: allinone_darwin_arm64
-          path: Golang/allinone_darwin_arm64
-  
-  windows_amd64_build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Cross Compile
-        run: |
-          cd ./Golang
-          GOOS=windows GOARCH=amd64 go build -o allinone_windows_amd64.exe
-      - name: Upload Cross Compile Artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: allinone_windows_amd64
-          path: Golang/allinone_windows_amd64.exe
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./Golang/releases/${{ steps.build.outputs.release_tag }}
+          asset_name: allinone
+          asset_content_type: application/octet-stream
