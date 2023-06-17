@@ -35,7 +35,7 @@ jobs:
         id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MY_PAT }}
         with:
           tag_name: ${{ steps.build.outputs.release_tag }}
           release_name: Release ${{ steps.build.outputs.release_tag }}
@@ -47,7 +47,7 @@ jobs:
         id: upload_assets
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.MY_PAT }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./Golang/releases/${{ steps.build.outputs.release_tag }}
