@@ -26,7 +26,7 @@ jobs:
           cd ./Golang
           export CURRENT_DATE=$(date +"%Y-%m-%d_%H%M%S")
           export RELEASE_TAG="release_${CURRENT_DATE}"
-          mkdir -p releases/${RELEASE_TAG}
+          mkdir -p ${steps.date.outputs.tag}
           GOOS=linux GOARCH=amd64 go build -o releases/${steps.date.outputs.tag}/allinone_linux_amd64
           GOOS=linux GOARCH=arm64 go build -o releases/${steps.date.outputs.tag}/allinone_linux_arm64
           GOOS=darwin GOARCH=amd64 go build -o releases/${steps.date.outputs.tag}/allinone_darwin_amd64
